@@ -1,4 +1,4 @@
-from flask import Flask, request, Response
+from flask import Flask, request, jsonify
 import hashlib
 import os
 
@@ -6,25 +6,29 @@ app = Flask(__name__)
 
 VERIFICATION_TOKEN = os.environ.get("EBAY_VERIFICATION_TOKEN", "")
 
+ENDPOINT_URL = "https://ebay-notification-endpoint-eagf.onrender.com/ebay/notification"
+
 
 @app.route("/ebay/notification", methods=["GET", "POST"])
 def ebay_notification():
     challenge_code = request.args.get("challenge_code")
 
     if challenge_code:
-        endpoint = request.url.split("?")[0]
-
         response_hash = hashlib.sha256(
-            (challenge_code + VERIFICATION_TOKEN + endpoint).encode("utf-8")
+            (
+                challenge_code
+                + VERIFICATION_TOKEN
+                + ENDPOINT_URL
+            ).encode("utf-8")
         ).hexdigest()
 
-        return Response(
-            response_hash,
-            status=200,
-            mimetype="text/plain"
-        )
+        return jsonify({
+            "challengeResponse": response_hash
+        }), 200
 
-    return Response("OK", status=200)
+    return jsonify({
+        "status": "OK"
+    }), 200
 
 
 @app.route("/", methods=["GET"])
