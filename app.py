@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, send_from_directory
 import hashlib
 import os
 
-app = Flask(**name**)
+app = Flask(__name__)
 
 VERIFICATION_TOKEN = os.environ.get("EBAY_VERIFICATION_TOKEN", "")
 
